@@ -72,11 +72,9 @@ public class WeatherView extends JFrame {
 
         contentPanel.add(Box.createVerticalStrut(15));
         contentPanel.add(searchPanel);
-
         // Display the weather card
         WeatherCard weatherCard = new WeatherCard();
-        weatherCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 190));
-
+        weatherCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 310));
         contentPanel.add(Box.createVerticalStrut(25));
         contentPanel.add(weatherCard);
 
