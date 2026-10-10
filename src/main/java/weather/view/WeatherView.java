@@ -73,31 +73,9 @@ public class WeatherView extends JFrame {
         contentPanel.add(Box.createVerticalStrut(15));
         contentPanel.add(searchPanel);
 
-        // Weather information card
-        JPanel weatherCard = new JPanel();
-        weatherCard.setLayout(new BorderLayout(0, 10));
-        weatherCard.setBackground(new Color(41, 43, 70));
-        weatherCard.setBorder(new EmptyBorder(25, 15, 25, 15));
+        // Display the weather card
+        WeatherCard weatherCard = new WeatherCard();
         weatherCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 190));
-
-        JLabel cityLabel = new JLabel("Search for a city");
-        cityLabel.setForeground(lavenderColor);
-        cityLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
-        cityLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        JLabel temperatureLabel = new JLabel("--°C");
-        temperatureLabel.setForeground(Color.WHITE);
-        temperatureLabel.setFont(new Font("SansSerif", Font.BOLD, 48));
-        temperatureLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        JLabel conditionLabel = new JLabel("Weather information will appear here");
-        conditionLabel.setForeground(new Color(175, 172, 196));
-        conditionLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        conditionLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        weatherCard.add(cityLabel, BorderLayout.NORTH);
-        weatherCard.add(temperatureLabel, BorderLayout.CENTER);
-        weatherCard.add(conditionLabel, BorderLayout.SOUTH);
 
         contentPanel.add(Box.createVerticalStrut(25));
         contentPanel.add(weatherCard);
