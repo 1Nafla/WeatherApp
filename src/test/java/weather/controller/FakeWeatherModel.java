@@ -1,31 +1,39 @@
+
 package weather.controller;
 
 import weather.model.WeatherData;
 import weather.model.WeatherModelApi;
 import weather.model.WeatherObserver;
 
+/**
+ * A fake Model used to test the Controller independently.
+ * It records method calls without requiring the real Model.
+ */
 public class FakeWeatherModel implements WeatherModelApi {
-    private String lastSearchedCity = null;
-    private boolean refreshCalled = false;
+
+    private String lastSearchedCity;
+    private boolean refreshCalled;
+    private WeatherObserver observer;
+    private WeatherData latestData;
 
     @Override
     public void searchCity(String cityName) {
-        this.lastSearchedCity = cityName;
+        lastSearchedCity = cityName;
     }
 
     @Override
     public void refreshCurrentCity() {
-        this.refreshCalled = true;
+        refreshCalled = true;
     }
 
     @Override
     public void addObserver(WeatherObserver observer) {
-    // Intentional empty implementation for testing purposes
+        this.observer = observer;
     }
 
     @Override
     public WeatherData getLatestData() {
-    return null;
+        return latestData;
     }
 
     public String getLastSearchedCity() {
@@ -35,4 +43,12 @@ public class FakeWeatherModel implements WeatherModelApi {
     public boolean isRefreshCalled() {
         return refreshCalled;
     }
-} 
+
+    public WeatherObserver getObserver() {
+        return observer;
+    }
+
+    public void setLatestData(WeatherData latestData) {
+        this.latestData = latestData;
+    }
+}

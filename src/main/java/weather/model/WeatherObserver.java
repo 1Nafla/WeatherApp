@@ -1,10 +1,23 @@
+
 package weather.model;
 
 /**
- * Observer interface implementing the Observer Pattern.
- * Allows View components to listen for data updates and errors from the Model.
+ * Observer interface for receiving weather updates and errors.
+ * The View implements this interface to react to Model changes.
  */
 public interface WeatherObserver {
+
+    /**
+     * Called when new weather data is available.
+     *
+     * @param data the updated weather information
+     */
     void onWeatherDataUpdated(Object data);
+
+    /**
+     * Called when a search or refresh operation fails.
+     *
+     * @param errorMessage a user-friendly error description
+     */
     void onError(String errorMessage);
-} 
+}
