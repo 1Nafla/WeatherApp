@@ -1,23 +1,32 @@
+
 package weather.view;
 
 import java.awt.Color;
+import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.Objects;
 import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 
-/** A rounded button with subtle hover and press feedback. */
+/** A View-only button with rounded corners and keyboard/mouse feedback. */
 public class RoundedButton extends JButton {
     private final boolean secondary;
 
+    /** @param text non-null label for the primary button */
     public RoundedButton(String text) {
         this(text, false);
     }
 
+    /**
+     * @param text non-null button label
+     * @param secondary true to use the secondary visual style
+     * @throws NullPointerException if text is null
+     */
     public RoundedButton(String text, boolean secondary) {
-        super(text);
+        super(Objects.requireNonNull(text, "text"));
         this.secondary = secondary;
         setFont(new Font("Segoe UI", Font.BOLD, 14));
         setForeground(secondary ? new Color(218, 202, 255)
@@ -56,6 +65,13 @@ public class RoundedButton extends JButton {
             g.translate(0, 1);
         }
         super.paintComponent(g);
+        // Visible keyboard focus even though the standard focus border is hidden.
+        if (isFocusOwner()) {
+            g.setColor(new Color(245, 240, 255));
+            g.setStroke(new BasicStroke(1.4f));
+            g.drawRoundRect(3, 3, Math.max(0, getWidth() - 7),
+                    Math.max(0, getHeight() - 7), 18, 18);
+        }
         g.dispose();
     }
 }

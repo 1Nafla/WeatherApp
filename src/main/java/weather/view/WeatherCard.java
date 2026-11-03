@@ -1,3 +1,4 @@
+
 package weather.view;
 
 import java.awt.BorderLayout;
@@ -8,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.Locale;
+import java.util.Objects;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -17,7 +19,11 @@ import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import weather.model.WeatherData;
 
-/** Displays weather values or a clear status message. */
+/**
+ * Displays a weather reading or a user-friendly status message.
+ * View-only component: it never changes WeatherData or the Model.
+ * Display methods are intended to run on Swing's Event Dispatch Thread.
+ */
 public class WeatherCard extends RoundedPanel {
     private static final Color LAVENDER = new Color(190, 171, 255);
     private static final Color MUTED = new Color(181, 176, 204);
@@ -35,6 +41,7 @@ public class WeatherCard extends RoundedPanel {
     private final Timer loadingTimer;
     private int loadingDots = 0;
 
+    /** Creates a card that initially asks the user to search for a city. */
     public WeatherCard() {
         super(28, new Color(41, 43, 70));
         setLayout(new BorderLayout());
@@ -119,24 +126,33 @@ public class WeatherCard extends RoundedPanel {
         states.show(statePanel, "status");
     }
 
+    /** Effects: shows the initial empty-state prompt. */
     public void showInitial() {
         showStatus("☁", "Explore the weather", "Enter a city to get started");
     }
 
+    /** Effects: shows an animated loading state until the next update. */
     public void showLoading() {
         showStatus("◌", "Loading", "Getting weather information...");
         loadingDots = 0;
         loadingTimer.start();
     }
 
+    /** Effects: shows the empty-search validation message. */
     public void showEmptyInput() {
         showStatus("!", "Enter a city name", "The search field cannot be empty");
     }
 
+    /** Effects: tells the user that preview mode cannot search or refresh. */
     public void showPreviewOnly() {
         showStatus("☁", "Preview mode", "Connect the Model to enable search");
     }
 
+    /**
+     * Effects: shows a Model error, stopping any loading animation.
+     *
+     * @param errorMessage error text; null/blank uses a default message
+     */
     public void showError(String errorMessage) {
         String detail = errorMessage == null || errorMessage.trim().isEmpty()
                 ? "Unable to load weather information" : errorMessage.trim();
@@ -151,7 +167,15 @@ public class WeatherCard extends RoundedPanel {
         statusDetail.setToolTipText(detail);
     }
 
+    /**
+     * Effects: displays the fields of an immutable weather reading.
+     * It does not modify the supplied WeatherData object.
+     *
+     * @param data a non-null immutable weather reading
+     * @throws NullPointerException if data is null
+     */
     public void showWeather(WeatherData data) {
+        Objects.requireNonNull(data, "data");
         loadingTimer.stop();
         cityLabel.setText(data.getCity());
         temperatureLabel.setText(String.format(Locale.US,

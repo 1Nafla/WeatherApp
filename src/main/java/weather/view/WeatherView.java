@@ -1,3 +1,4 @@
+
 package weather.view;
 
 import java.awt.BorderLayout;
@@ -25,26 +26,36 @@ import weather.model.WeatherData;
 import weather.model.WeatherModelApi;
 import weather.model.WeatherObserver;
 
-/** Weatherly's main window: handles user actions and displays Model updates. */
+/**
+ * The Weatherly View in the MVC architecture.
+ * Renders weather data and forwards user actions to the existing Controller.
+ * Implements the team's Observer interface to receive Model notifications.
+ * Construct on Swing's Event Dispatch Thread (EDT).
+ */
 public class WeatherView extends JFrame implements WeatherObserver {
     private static final Color BACKGROUND = new Color(22, 24, 42);
     private static final Color LAVENDER = new Color(190, 171, 255);
 
-    private final WeatherModelApi model;
     private final WeatherController controller;
     private final WeatherCard weatherCard = new WeatherCard();
     private final JTextField cityField = new HintTextField();
     private final RoundedButton searchButton = new RoundedButton("Search");
     private final RoundedButton refreshButton = new RoundedButton("↻  Refresh", true);
 
-    /** Preview-only constructor, without a connected Model. */
+    /**
+     * Creates a visual-only preview. Actions cannot search without a Model.
+     */
     public WeatherView() {
         this(null);
     }
 
-    /** Constructor for the final MVC application. */
+    /**
+     * Creates a View and subscribes it to the Model when available.
+     *
+     * @param model an implementation of the team's Model interface,
+     *              or null only for preview mode
+     */
     public WeatherView(WeatherModelApi model) {
-        this.model = model;
         this.controller = model == null ? null : new WeatherController(model);
 
         setTitle("Weatherly");
@@ -138,37 +149,41 @@ public class WeatherView extends JFrame implements WeatherObserver {
         return content;
     }
 
+    /**
+     * Effects: passes search input to the Controller. The Controller validates it;
+     * successful results or errors arrive through the Observer callbacks.
+     */
     private void performSearch() {
-        String city = cityField.getText().trim();
-        if (city.isEmpty()) {
-            weatherCard.showEmptyInput();
-            cityField.requestFocusInWindow();
-            return;
-        }
         if (controller == null) {
-            weatherCard.showPreviewOnly();
+            if (cityField.getText().trim().isEmpty()) {
+                weatherCard.showEmptyInput();
+            } else {
+                weatherCard.showPreviewOnly();
+            }
             return;
         }
 
         weatherCard.showLoading();
         try {
-            if (!controller.handleSearch(city)) {
+            if (!controller.handleSearch(cityField.getText())) {
                 weatherCard.showEmptyInput();
+                cityField.requestFocusInWindow();
             }
         } catch (RuntimeException exception) {
             weatherCard.showError("Unable to search for this city");
         }
     }
 
+    /**
+     * Effects: delegates Refresh to the Controller. The Model handles the
+     * case where the user has not selected a city yet.
+     */
     private void performRefresh() {
         if (controller == null) {
             weatherCard.showPreviewOnly();
             return;
         }
-        if (model.getLatestData() == null) {
-            weatherCard.showError("Search for a city first");
-            return;
-        }
+
         weatherCard.showLoading();
         try {
             controller.handleRefresh();
@@ -177,6 +192,12 @@ public class WeatherView extends JFrame implements WeatherObserver {
         }
     }
 
+    /**
+     * Displays an Observer notification on the Swing EDT.
+     * The parameter remains Object to match the team's existing interface.
+     *
+     * @param data expected to be a non-null WeatherData value
+     */
     @Override
     public void onWeatherDataUpdated(Object data) {
         Runnable update = () -> {
@@ -193,6 +214,11 @@ public class WeatherView extends JFrame implements WeatherObserver {
         }
     }
 
+    /**
+     * Displays a Model error on the Swing EDT.
+     *
+     * @param errorMessage error text; null is handled by WeatherCard
+     */
     @Override
     public void onError(String errorMessage) {
         Runnable update = () -> weatherCard.showError(errorMessage);
@@ -203,9 +229,18 @@ public class WeatherView extends JFrame implements WeatherObserver {
         }
     }
 
-    /** Displays example data when previewing the UI without a Model. */
+    /**
+     * Displays supplied example data without changing the Model.
+     *
+     * @param data immutable, non-null weather reading to preview
+     */
     public void showPreviewData(WeatherData data) {
-        weatherCard.showWeather(data);
+        Runnable update = () -> weatherCard.showWeather(data);
+        if (SwingUtilities.isEventDispatchThread()) {
+            update.run();
+        } else {
+            SwingUtilities.invokeLater(update);
+        }
     }
 
     private static class HintTextField extends JTextField {
